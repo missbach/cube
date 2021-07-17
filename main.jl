@@ -73,8 +73,6 @@ end
 
 # COMPUTATIONS
 
-print_update()
-
 function backtrack()
     # Reset path entry
     if k <= length(configuration)
@@ -91,6 +89,9 @@ function backtrack()
         cube[position[1], position[2], position[3]] = 0
     end
 end
+
+println("STARTING!\n")
+print_update()
 
 while true
 
@@ -126,7 +127,11 @@ while true
     end
 
     # We tried all possible combinations here, no luck
-    if path[k] > 6
+    # FYI: For the first element, we only try the first direction since walking
+    # in the others would always yield the same results, albeit rotated.
+    # TODO The remaining result set my still contain equivalent results that
+    # just have been rotated.
+    if path[k] > 6 || (k == 1 && path[k] != 1)
         if k == 1
             println("\n\nABORT at iteration = ", iteration_counter, "\n")
             break

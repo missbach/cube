@@ -50,18 +50,30 @@ position = [1, 1, 1]
 iteration_counter = 0
 result_counter = 0
 
-# COMPUTATION
+# HELPER FUNCTIONS
 
-function print_update()
+function log(args...)
+    if logging
+        println(args...)
+    end
+end
+
+function print_update(args...)
     if !logging
         return
     end
+
+    println(args...)
 
     display(cube)
     println("\n")
     println("Position = ", position)
     println("Element k = ", k, "\n")
 end
+
+# COMPUTATIONS
+
+print_update()
 
 function backtrack()
     # Reset path entry
@@ -80,8 +92,6 @@ function backtrack()
     end
 end
 
-print_update()
-
 while true
 
     if k == length(configuration) + 1
@@ -89,17 +99,11 @@ while true
 
         cube[position[1], position[2], position[3]] = k
 
-        if logging
-            println("SUCESS!\n")
-        else
-            println("\n")
-        end
-        println("Result n° ", result_counter, " at iteration = ", iteration_counter, ":")
+        log("SUCESS!")
+        println("\n\nResult n° ", result_counter, " at iteration = ", iteration_counter, ":")
         display(cube)
         println("\n")
-        if logging
-            println("Now backtracking again...\n")
-        end
+        log("Now backtracking again...\n")
 
         cube[position[1], position[2], position[3]] = 0
 
@@ -130,17 +134,12 @@ while true
 
         backtrack()
 
-        if logging
-            println("-> backtracking", "\n")
-        end
-        print_update()
+        print_update("-> backtracking\n")
         continue
     end
 
-    if logging
-        println("-> trying movement ", path[k], " (", configuration[k], "x): ",
-                configuration[k] * direction_vectors[path[k], :])
-    end
+    log("-> trying movement ", path[k], " (", configuration[k], "x): ",
+        configuration[k] * direction_vectors[path[k], :])
 
     # Walk cube to check if that movement is physically_possible possible:
 
@@ -150,17 +149,13 @@ while true
         new_position = position + i * direction_vectors[path[k], :]
 
         if !all([x in 1 : cube_length for x in new_position])
-            if logging
-                println("-> outside bounds at ", new_position)
-            end
+            log("-> outside bounds at ", new_position)
             physically_possible = false
             break
         end
 
         if cube[new_position[1], new_position[2], new_position[3]] != 0
-            if logging
-                println("-> field occupied at ", new_position)
-            end
+            log("-> field occupied at ", new_position)
             physically_possible = false
             break
         end
@@ -184,9 +179,6 @@ while true
     # Advance to the next element
     global k += 1
 
-    if logging
-        println("-> success\n")
-    end
-    print_update()
+    print_update("-> success\n")
 
 end

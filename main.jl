@@ -121,17 +121,19 @@ while true
     # Try next direction
     path[k] += 1
 
-    # Don't allow movement in the same axis
+    # Don't allow movement along the same axis as the previous step
     if k > 1 && path[k - 1] % 3 == path[k] % 3
         path[k] += 1
     end
 
-    # We tried all possible combinations here, no luck
-    # FYI: For the first element, we only try the first direction since walking
-    # in the others would always yield the same results, albeit rotated.
-    # TODO The remaining result set my still contain equivalent results that
-    # just have been rotated.
-    if path[k] > 6 || (k == 1 && path[k] != 1)
+    # We tried all possible combinations here, no luck.
+    # FYI: For the first two steps, we only try walking along the first and
+    # second axis respectively, since walking in the other directions would
+    # always yield the same results, albeit rotated.
+    # This means that path[1]==1 and path[2]==2 have to be true.
+    # Remember, the value of path[2] will automatically be 2 in the first pass, since
+    # we can't repeatedly walk in the same direction (see the other IF statement).
+    if path[k] > 6 || (k <= 2 && path[k] != k)
         if k == 1
             println("\n\nABORT at iteration = ", iteration_counter, "\n")
             break

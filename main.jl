@@ -5,7 +5,7 @@
 # Real world cube:
 configuration = [2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2]
 
-# Result should be:
+# Result n° 1 at iteration = 411:
 # 3×3×3 Array{Int64, 3}:
 # [:, :, 1] =
 #   1  13   4
@@ -45,6 +45,11 @@ direction_vectors = [
 k = 1
 position = [1, 1, 1]
 
+iteration_counter = 0
+result_counter = 0
+
+# COMPUTATION
+
 function print_update()
     display(cube)
     println("\n")
@@ -52,21 +57,45 @@ function print_update()
     println("Element k = ", k, "\n")
 end
 
-# COMPUTATION
+function backtrack()
+    # Reset path entry
+    if k <= length(configuration)
+        path[k] = 0
+    end
+
+    # Backtrack
+    global k -= 1
+
+    # Free indices in cube matrix... Walking cube
+    for i = 1 : configuration[k]
+        global position -= direction_vectors[path[k], :]
+
+        cube[position[1], position[2], position[3]] = 0
+    end
+end
 
 print_update()
 
 while true
 
     if k == length(configuration) + 1
+        global result_counter += 1
+
         cube[position[1], position[2], position[3]] = k
 
         println("SUCESS!\n")
-        println("Result:")
+        println("Result n° ", result_counter, " at iteration = ", iteration_counter, ":")
         display(cube)
         println("\n")
-        break
+        println("Now backtracking again...\n")
+        cube[position[1], position[2], position[3]] = 0
+
+
+        backtrack()
+        continue
     end
+
+    global iteration_counter += 1
 
     # Try next direction
     path[k] += 1
@@ -78,18 +107,12 @@ while true
 
     # We tried all possible combinations here, no luck
     if path[k] > 6
-        # Reset path entry
-        path[k] = 0
-
-        # Backtrack
-        global k -= 1
-
-        # Free indices in cube matrix... Walking cube
-        for i = 1 : configuration[k]
-            global position -= direction_vectors[path[k], :]
-
-            cube[position[1], position[2], position[3]] = 0
+        if k == 1
+            println("\nABORT at iteration = ", iteration_counter, "\n")
+            break
         end
+
+        backtrack()
 
         println("-> backtracking", "\n")
         print_update()
@@ -105,7 +128,7 @@ while true
     for i = 1 : configuration[k]
         new_position = position + i * direction_vectors[path[k], :]
 
-        if !all([x in 1:3 for x in new_position])
+        if !all([x in 1 : cube_length for x in new_position])
             println("-> outside bounds at ", new_position)
             physically_possible = false
             break

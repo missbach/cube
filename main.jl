@@ -25,15 +25,17 @@ configuration = [2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2]
 # Alternative, simple cube:
 # configuration = [2, 2, 2, 1, 1,   1, 1, 1, 2, 2, 2,   1, 2, 2, 2, 1, 1]
 
+# Example 4x4x4 cube:
+# configuration = [3, 3, 3, 2, 2, 1, 1,   1, 2, 1, 3, 3, 3, 1, 2,   1, 2, 1, 3, 3, 3, 1, 2,   1, 2, 1, 3, 3, 3, 1, 2]
+
 logging = false
 
 # SETUP
 
-cube_volume = sum(configuration) + 1
-cube_length = Int(cbrt(cube_volume))
+cube_length = Int(cbrt(sum(configuration) + 1))
 
 cube = zeros(Int, cube_length, cube_length, cube_length)
-path = zeros(Int, cube_volume)
+path = zeros(Int, length(configuration))
 
 direction_vectors = [
      1  0  0
@@ -75,7 +77,7 @@ end
 
 function backtrack()
     # Reset path entry
-    if k <= length(configuration)
+    if k <= length(path)
         path[k] = 0
     end
 
@@ -95,7 +97,7 @@ print_update()
 
 while true
 
-    if k == length(configuration) + 1
+    if k == length(path) + 1
         global result_counter += 1
 
         cube[position[1], position[2], position[3]] = k

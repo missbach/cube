@@ -25,6 +25,8 @@ configuration = [2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2]
 # Alternative, simple cube:
 # configuration = [2, 2, 2, 1, 1,   1, 1, 1, 2, 2, 2,   1, 2, 2, 2, 1, 1]
 
+logging = false
+
 # SETUP
 
 cube_volume = sum(configuration) + 1
@@ -51,6 +53,10 @@ result_counter = 0
 # COMPUTATION
 
 function print_update()
+    if !logging
+        return
+    end
+
     display(cube)
     println("\n")
     println("Position = ", position)
@@ -83,19 +89,29 @@ while true
 
         cube[position[1], position[2], position[3]] = k
 
-        println("SUCESS!\n")
+        if logging
+            println("SUCESS!\n")
+        else
+            println("\n")
+        end
         println("Result n° ", result_counter, " at iteration = ", iteration_counter, ":")
         display(cube)
         println("\n")
-        println("Now backtracking again...\n")
-        cube[position[1], position[2], position[3]] = 0
+        if logging
+            println("Now backtracking again...\n")
+        end
 
+        cube[position[1], position[2], position[3]] = 0
 
         backtrack()
         continue
     end
 
     global iteration_counter += 1
+
+    if !logging && iteration_counter % 25 == 0
+        print(".")
+    end
 
     # Try next direction
     path[k] += 1
@@ -108,18 +124,23 @@ while true
     # We tried all possible combinations here, no luck
     if path[k] > 6
         if k == 1
-            println("\nABORT at iteration = ", iteration_counter, "\n")
+            println("\n\nABORT at iteration = ", iteration_counter, "\n")
             break
         end
 
         backtrack()
 
-        println("-> backtracking", "\n")
+        if logging
+            println("-> backtracking", "\n")
+        end
         print_update()
         continue
     end
 
-    println("-> trying movement ", path[k], " (", configuration[k], "x): ", configuration[k] * direction_vectors[path[k], :])
+    if logging
+        println("-> trying movement ", path[k], " (", configuration[k], "x): ",
+                configuration[k] * direction_vectors[path[k], :])
+    end
 
     # Walk cube to check if that movement is physically_possible possible:
 
@@ -129,13 +150,17 @@ while true
         new_position = position + i * direction_vectors[path[k], :]
 
         if !all([x in 1 : cube_length for x in new_position])
-            println("-> outside bounds at ", new_position)
+            if logging
+                println("-> outside bounds at ", new_position)
+            end
             physically_possible = false
             break
         end
 
         if cube[new_position[1], new_position[2], new_position[3]] != 0
-            println("-> field occupied at ", new_position)
+            if logging
+                println("-> field occupied at ", new_position)
+            end
             physically_possible = false
             break
         end
@@ -159,7 +184,9 @@ while true
     # Advance to the next element
     global k += 1
 
-    println("-> success\n")
+    if logging
+        println("-> success\n")
+    end
     print_update()
 
 end

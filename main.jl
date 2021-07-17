@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-# INPUTS
+# INPUT
 
 # Real world cube:
 configuration = [2, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2]
@@ -73,7 +73,7 @@ function print_update(args...)
     println("Element k = ", k, "\n")
 end
 
-# COMPUTATIONS
+# COMPUTATION
 
 function backtrack()
     # Reset path entry
@@ -120,7 +120,7 @@ while true
         print(".")
     end
 
-    # Try next direction
+    # Try next direction vector
     path[k] += 1
 
     # Don't allow movement along the same axis as the previous step
@@ -128,21 +128,22 @@ while true
         path[k] += 1
     end
 
-    # We tried all possible combinations here, no luck.
-    # FYI: For the first two steps, we only try walking along the first and
-    # second axis respectively, since walking in the other directions would
-    # always yield the same results, albeit rotated.
-    # This means that path[1]==1 and path[2]==2 have to be true.
-    # Remember, the value of path[2] will automatically be 2 in the first pass, since
-    # we can't repeatedly walk in the same direction (see the other IF statement).
-    if path[k] > 6 || (k <= 2 && path[k] != k)
-        if k == 1
-            println("\n\nABORT at iteration = ", iteration_counter, "\n")
-            break
-        end
+    # For the first two steps, we only try walking along the first and second
+    # direction vectors respectively, since walking in any other direction
+    # would still yield the same results, albeit rotated.
+    # In code: path[1] == 1 && path[2] == 2 should be true.
+    # The value of path[2] will automatically be 2 in the first pass, since we
+    # can't repeatedly walk in the same direction (see the other IF statement).
+    # So if the conditions are not met, it's because we backtracked here...
+    # This means that we've already tried all combinations, so we just abort.
+    if k <= 2 && path[k] != k
+        println("\n\nABORT at iteration = ", iteration_counter, "\n")
+        break
+    end
 
+    # We tried all possible combinations here, but no luck
+    if path[k] > 6
         backtrack()
-
         print_update("-> backtracking\n")
         continue
     end
@@ -154,10 +155,10 @@ while true
 
     physically_possible = true
 
-    for i = 1 : configuration[k]
+    for i = configuration[k] : -1 : 1
         new_position = position + i * direction_vectors[path[k], :]
 
-        if !all([x in 1 : cube_length for x in new_position])
+        if i == configuration[k] && !all([x in 1 : cube_length for x in new_position])
             log("-> outside bounds at ", new_position)
             physically_possible = false
             break
